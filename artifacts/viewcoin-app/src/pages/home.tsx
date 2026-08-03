@@ -1,7 +1,6 @@
 import { useState, useEffect } from 'react';
-import { useLocation } from 'wouter';
 import { motion } from 'framer-motion';
-import { Power, Coins, Radio, ExternalLink, Play, SquareSquare } from 'lucide-react';
+import { Coins, Radio, ExternalLink, Play, Square, Tv2, Zap } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useGetCurrentSlot, useEarnViewcoins, useGetMe } from '@workspace/api-client-react';
 import { useTimer } from '@/hooks/use-timer';
@@ -12,69 +11,51 @@ import { BottomNav } from '@/components/bottom-nav';
 export default function HomeScreen() {
   const { user, updateUser } = useAuth();
   const { toast } = useToast();
-  
-  // Real-time data from API
+
   const { data: meData, refetch: refetchMe } = useGetMe();
   const { data: slotData } = useGetCurrentSlot();
   const earnMutation = useEarnViewcoins();
 
   const [isLive, setIsLive] = useState(false);
 
-  // Sync user data if updated from server
   useEffect(() => {
-    if (meData && user) {
-      if (meData.viewcoins !== user.viewcoins) {
-        updateUser(meData);
-      }
+    if (meData && user && meData.viewcoins !== user.viewcoins) {
+      updateUser(meData);
     }
   }, [meData]);
 
   const handleTick = () => {
     if (!slotData?.hasSlot || !slotData.slot) return;
-
-    earnMutation.mutate({
-      data: {
-        minutesWatched: 5,
-        channelName: slotData.slot.memberName,
-        slotId: slotData.slot.id
+    earnMutation.mutate(
+      { data: { minutesWatched: 5, channelName: slotData.slot.memberName, slotId: slotData.slot.id } },
+      {
+        onSuccess: (res) => {
+          toast({ title: '🪙 +1 Viewcoin!', description: `Ganhou assistindo ${slotData.slot?.memberName}.` });
+          refetchMe();
+        },
+        onError: () => {
+          setIsLive(false);
+          toast({ title: 'Erro na contagem', description: 'A conexão falhou. Reinicie.', variant: 'destructive' });
+        },
       }
-    }, {
-      onSuccess: (res) => {
-        toast({
-          title: "Moeda Adquirida!",
-          description: `Você ganhou ${res.viewcoinsEarned} Viewcoin assistindo ${slotData.slot?.memberName}.`,
-        });
-        refetchMe();
-      },
-      onError: () => {
-        setIsLive(false);
-        toast({
-          title: "Erro na contagem",
-          description: "A conexão falhou. Reinicie a contagem.",
-          variant: "destructive"
-        });
-      }
-    });
+    );
   };
 
   const { formattedRemaining, progress } = useTimer(isLive, handleTick);
 
   const toggleLive = () => {
     if (!slotData?.hasSlot) {
-      toast({
-        title: "Nenhum canal ativo",
-        description: "Não há transmissão na grade neste momento.",
-        variant: "destructive"
-      });
+      toast({ title: 'Nenhum canal ativo agora', description: 'Veja a Grade para os próximos horários.', variant: 'destructive' });
       return;
     }
 
-    if (!isLive && slotData.slot?.channelLink) {
-      // Open channel in new tab when starting
-      window.open(slotData.slot.channelLink, '_blank', 'noopener,noreferrer');
+    if (!isLive) {
+      // Open Kick channel in the user's native browser
+      const link = slotData.slot?.channelLink;
+      if (link) window.open(link, '_blank', 'noopener,noreferrer');
     }
 
-    setIsLive(!isLive);
+    setIsLive(prev => !prev);
   };
 
   const activeSlot = slotData?.slot;
@@ -82,130 +63,127 @@ export default function HomeScreen() {
 
   return (
     <>
-      <div className="flex-1 w-full h-full flex flex-col pt-4 px-5 pb-6">
-        
-        {/* Top Banner - Profile summary */}
-        <div className="flex items-center justify-between mb-6">
+      <div className="flex-1 w-full flex flex-col pt-4 px-4 pb-4 gap-4">
+
+        {/* Header */}
+        <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-primary/20 border border-primary/50 flex items-center justify-center text-primary font-bold shadow-[0_0_15px_rgba(217,70,239,0.2)]">
+            <div className="w-9 h-9 rounded-full bg-fuchsia-500/20 border border-fuchsia-500/40 flex items-center justify-center text-fuchsia-400 font-bold text-sm">
               {user?.username?.charAt(0).toUpperCase() || 'U'}
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Bem-vindo,</p>
-              <p className="text-sm font-semibold truncate max-w-[120px]">{user?.username}</p>
+              <p className="text-[10px] text-white/40">Bem-vindo,</p>
+              <p className="text-sm font-semibold text-white truncate max-w-[110px]">{user?.username}</p>
             </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-secondary/10 border border-secondary/20 px-3 py-1.5 rounded-full">
-            <Coins className="w-4 h-4 text-secondary animate-coin-shine" />
-            <span className="text-secondary font-mono font-bold">{currentCoins}</span>
+          <div className="flex items-center gap-1.5 bg-yellow-400/10 border border-yellow-400/20 px-3 py-1.5 rounded-full">
+            <Coins className="w-4 h-4 text-yellow-400" />
+            <span className="text-yellow-400 font-mono font-bold text-sm">{currentCoins}</span>
           </div>
         </div>
 
-        {/* Current Live Card */}
-        <div className="relative w-full rounded-2xl overflow-hidden bg-card border border-white/10 p-5 mb-8 flex flex-col justify-center min-h-[140px]">
-          {/* Animated gradient bg */}
-          <div className={cn(
-            "absolute inset-0 bg-gradient-to-r from-primary/10 via-accent/10 to-primary/10 animate-gradient-x opacity-50",
-            slotData?.hasSlot ? 'opacity-100' : 'opacity-0'
-          )} />
-          
-          <div className="relative z-10 flex flex-col items-center text-center">
-            {slotData?.hasSlot && activeSlot ? (
-              <>
-                <div className="flex items-center gap-2 mb-2 bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-red-500/30">
-                  <Radio className="w-3 h-3 animate-pulse" />
-                  AO VIVO AGORA
-                </div>
-                <h2 className="text-2xl font-black text-white mb-1">{activeSlot.memberName}</h2>
-                <a 
-                  href={activeSlot.channelLink} 
-                  target="_blank" 
-                  rel="noopener noreferrer"
-                  className="text-xs text-primary flex items-center gap-1 hover:underline"
-                >
-                  Abrir Canal <ExternalLink className="w-3 h-3" />
-                </a>
-              </>
-            ) : (
-              <>
-                <div className="w-12 h-12 rounded-full bg-white/5 flex items-center justify-center mb-3">
-                  <SquareSquare className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <p className="text-sm font-medium text-muted-foreground">Nenhum canal na grade agora</p>
-              </>
-            )}
-          </div>
+        {/* Current channel card */}
+        <div className={cn(
+          "relative w-full rounded-2xl overflow-hidden border p-4 flex flex-col items-center text-center transition-all",
+          activeSlot
+            ? "bg-fuchsia-950/60 border-fuchsia-500/40"
+            : "bg-zinc-800/50 border-white/10"
+        )}>
+          {activeSlot && (
+            <div className="absolute inset-0 bg-gradient-to-b from-fuchsia-600/10 to-transparent pointer-events-none" />
+          )}
+          {activeSlot ? (
+            <>
+              <div className="flex items-center gap-1.5 bg-red-500/20 text-red-400 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider border border-red-500/30 mb-2">
+                <Radio className="w-3 h-3 animate-pulse" /> AO VIVO AGORA
+              </div>
+              <p className="text-xl font-black text-white">{activeSlot.memberName}</p>
+              <a
+                href={activeSlot.channelLink}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] text-fuchsia-400 flex items-center gap-1 mt-1 hover:underline"
+              >
+                {activeSlot.channelLink} <ExternalLink className="w-3 h-3" />
+              </a>
+            </>
+          ) : (
+            <div className="flex flex-col items-center py-2 gap-2">
+              <Tv2 className="w-8 h-8 text-white/20" />
+              <p className="text-sm text-white/40">Nenhum canal agora</p>
+              <p className="text-[10px] text-white/25">Veja a Grade para os próximos horários</p>
+            </div>
+          )}
         </div>
 
-        {/* The Core Interaction Area */}
-        <div className="flex-1 flex flex-col items-center justify-center relative -mt-4">
-          
-          {/* Circular Progress Ring */}
-          <div className="relative w-56 h-56 flex items-center justify-center">
-            <svg className="absolute inset-0 w-full h-full transform -rotate-90">
-              <circle 
-                cx="112" cy="112" r="106" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="4" 
-                className="text-white/5" 
-              />
-              <circle 
-                cx="112" cy="112" r="106" 
-                fill="none" 
-                stroke="currentColor" 
-                strokeWidth="4" 
-                className={cn(
-                  "transition-all duration-1000 ease-linear",
-                  isLive ? "text-primary" : "text-transparent"
-                )}
-                strokeDasharray="666" 
-                strokeDashoffset={666 - (666 * progress) / 100}
+        {/* LIGAR button — the main action */}
+        <div className="flex flex-col items-center gap-3">
+
+          {/* Progress ring */}
+          <div className="relative w-44 h-44 flex items-center justify-center">
+            <svg className="absolute inset-0 w-full h-full -rotate-90">
+              <circle cx="88" cy="88" r="82" fill="none" stroke="currentColor" strokeWidth="4" className="text-white/5" />
+              <circle
+                cx="88" cy="88" r="82" fill="none" stroke="currentColor" strokeWidth="4"
+                className={cn("transition-all duration-1000 ease-linear", isLive ? "text-fuchsia-500" : "text-transparent")}
+                strokeDasharray="515"
+                strokeDashoffset={515 - (515 * progress) / 100}
                 strokeLinecap="round"
               />
             </svg>
 
-            {/* Giant Power Button inside the ring */}
             <motion.button
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
+              whileHover={{ scale: 1.04 }}
+              whileTap={{ scale: 0.96 }}
               onClick={toggleLive}
               className={cn(
-                "relative z-10 w-44 h-44 rounded-full flex flex-col items-center justify-center border-4 transition-all duration-500 shadow-2xl",
-                isLive 
-                  ? "bg-primary/10 border-primary shadow-[0_0_60px_rgba(217,70,239,0.3)] animate-active-pulse" 
-                  : "bg-card border-white/10 hover:border-white/20"
+                "relative z-10 w-36 h-36 rounded-full flex flex-col items-center justify-center border-4 transition-all duration-500 shadow-2xl",
+                isLive
+                  ? "bg-fuchsia-600/20 border-fuchsia-500 shadow-fuchsia-500/30"
+                  : activeSlot
+                    ? "bg-zinc-800 border-fuchsia-500/60 hover:border-fuchsia-400"
+                    : "bg-zinc-800 border-white/10"
               )}
             >
               {isLive ? (
                 <>
-                  <div className="text-4xl font-mono font-bold text-white mb-1 drop-shadow-[0_0_10px_rgba(255,255,255,0.5)]">
-                    {formattedRemaining}
-                  </div>
-                  <p className="text-[10px] uppercase tracking-widest text-primary font-bold">LIGADO</p>
+                  <Square className="w-8 h-8 text-fuchsia-400 mb-1 fill-fuchsia-400" />
+                  <p className="text-2xl font-mono font-bold text-white leading-none">{formattedRemaining}</p>
+                  <p className="text-[9px] uppercase tracking-widest text-fuchsia-400 font-bold mt-1">assistindo</p>
                 </>
               ) : (
                 <>
-                  <Power className="w-12 h-12 text-white/50 mb-2" />
-                  <span className="text-sm font-bold text-white/50 uppercase tracking-widest">Ligar</span>
+                  <Play className="w-10 h-10 text-white/80 mb-1 fill-white/80" />
+                  <p className="text-sm font-bold text-white/80 uppercase tracking-widest">Ligar</p>
                 </>
               )}
             </motion.button>
           </div>
 
-          <div className="mt-8 text-center px-4">
+          {/* Hint text */}
+          <div className="text-center px-6">
             {isLive ? (
-              <p className="text-xs text-primary font-medium animate-pulse">
-                Ganhando 1 Viewcoin a cada 5 minutos.
-              </p>
+              <motion.p
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                className="text-xs text-fuchsia-400 font-medium flex items-center justify-center gap-1"
+              >
+                <Zap className="w-3 h-3" /> Ganhando 1 Viewcoin a cada 5 min
+              </motion.p>
             ) : (
-              <p className="text-xs text-muted-foreground">
-                Clique em Ligar para abrir a live e iniciar o contador.
+              <p className="text-[11px] text-white/30 leading-relaxed">
+                {activeSlot
+                  ? 'Toque em Ligar — o canal Kick abrirá no seu navegador'
+                  : 'Sem transmissão no momento. Volte mais tarde.'}
               </p>
             )}
           </div>
         </div>
+
+        {/* Spacer */}
+        <div className="flex-1" />
       </div>
+
       <BottomNav />
     </>
   );

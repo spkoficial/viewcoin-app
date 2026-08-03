@@ -16,6 +16,7 @@ import ScheduleScreen from '@/pages/schedule';
 import RankingScreen from '@/pages/ranking';
 import ProfileScreen from '@/pages/profile';
 import InstructionsScreen from '@/pages/instructions';
+import AdminScreen from '@/pages/admin';
 
 import { setAuthTokenGetter } from '@workspace/api-client-react';
 
