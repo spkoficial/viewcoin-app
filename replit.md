@@ -1,45 +1,63 @@
-# [Project name]
+# ViewCoin App
 
-_Replace the heading above with the project's name, and this line with one sentence describing what this app does for users._
+Aplicativo web que simula a interface de um smartphone moderno. Usuários ganham Viewcoins (moeda fictícia) assistindo às lives da grade de horários — a cada 5 minutos completos, 1 Viewcoin é creditado automaticamente.
 
 ## Run & Operate
 
-- `pnpm --filter @workspace/api-server run dev` — run the API server (port 5000)
-- `pnpm run typecheck` — full typecheck across all packages
-- `pnpm run build` — typecheck + build all packages
-- `pnpm --filter @workspace/api-spec run codegen` — regenerate API hooks and Zod schemas from the OpenAPI spec
-- `pnpm --filter @workspace/db run push` — push DB schema changes (dev only)
-- Required env: `DATABASE_URL` — Postgres connection string
+- `pnpm --filter @workspace/viewcoin-app run dev` — frontend (porta via PORT env)
+- `pnpm --filter @workspace/api-server run dev` — API server (porta 8080)
+- `pnpm run typecheck` — full typecheck
+- `pnpm --filter @workspace/api-spec run codegen` — regenerar hooks e schemas da spec OpenAPI
+- `pnpm --filter @workspace/db run push` — aplicar mudanças no schema do banco
 
 ## Stack
 
 - pnpm workspaces, Node.js 24, TypeScript 5.9
-- API: Express 5
-- DB: PostgreSQL + Drizzle ORM
-- Validation: Zod (`zod/v4`), `drizzle-zod`
-- API codegen: Orval (from OpenAPI spec)
-- Build: esbuild (CJS bundle)
+- Frontend: React + Vite + Tailwind CSS + framer-motion
+- Backend: Express 5 + Drizzle ORM + PostgreSQL
+- Auth: tokens em memória (no servidor) + localStorage (no cliente)
+- Roteamento: wouter
+- Ícones: lucide-react
 
 ## Where things live
 
-_Populate as you build — short repo map plus pointers to the source-of-truth file for DB schema, API contracts, theme files, etc._
+- `artifacts/viewcoin-app/src/pages/` — telas: boot, login, home, grade, ranking, perfil, instruções
+- `artifacts/viewcoin-app/src/components/phone-layout.tsx` — moldura do celular (iPhone mockup)
+- `artifacts/viewcoin-app/src/hooks/use-auth.ts` — autenticação via localStorage
+- `artifacts/viewcoin-app/src/hooks/use-timer.ts` — timer de contagem de Viewcoins
+- `artifacts/api-server/src/routes/` — auth, users, schedule, viewcoins
+- `artifacts/api-server/src/lib/auth.ts` — tokens em memória + hash de senha
+- `lib/db/src/schema/` — users, schedule_slots, viewcoin_transactions
+- `lib/api-spec/openapi.yaml` — contrato da API (fonte da verdade)
+- `attached_assets/image_1785729593271.png` — imagem do iPhone usada como moldura
 
 ## Architecture decisions
 
-_Populate as you build — non-obvious choices a reader couldn't infer from the code (3-5 bullets)._
+- **Autenticação stateful em memória:** tokens são armazenados em um Map no servidor. Não persistem entre restarts. Para produção, usar Redis ou banco.
+- **localStorage no cliente:** token e dados do usuário são guardados no localStorage para persistir entre sessões do browser.
+- **Sem formato `email` ou `integer` no OpenAPI:** Orval + Zod v3 não suporta esses formats — usar `string` e `number` no lugar.
+- **z-index do celular:** o conteúdo (`z-20`) fica acima da imagem do frame (`z-10`) para ser visível. A borda do celular enquadra visualmente o conteúdo.
 
 ## Product
 
-_Describe the high-level user-facing capabilities of this app once they exist._
+- Tela de boot com botão "Ligar" (Power)
+- Login e cadastro de usuários
+- Tela principal com canal ativo, saldo de Viewcoins e botão Ligar
+- Timer de 5 minutos que credita Viewcoins ao assistir
+- Grade de horários 24h × 7 dias
+- Ranking de usuários por Viewcoins
+- Perfil com histórico de transações
+- Instruções de uso detalhadas
+- Painel admin para editar a grade
 
 ## User preferences
 
-_Populate as you build — explicit user instructions worth remembering across sessions._
+- Interface toda em português do Brasil
+- Tema escuro como padrão
+- Interface simulada dentro da moldura de iPhone
 
 ## Gotchas
 
-_Populate as you build — sharp edges, "always run X before Y" rules._
-
-## Pointers
-
-- See the `pnpm-workspace` skill for workspace structure, TypeScript setup, and package details
+- Reiniciar o servidor perde todos os tokens de autenticação (usuários precisam logar novamente)
+- Admin padrão: email `admin@viewcoin.tv`, senha `admin123`
+- Orval gera sintaxe Zod v4 para `format: email` e `type: integer` — evitar esses tipos no openapi.yaml

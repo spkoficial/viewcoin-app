@@ -1,0 +1,28 @@
+kind = "web"
+previewPath = "/"
+title = "ViewCoin App"
+description = "Aplicativo web que simula a interface de um smartphone moderno (iPhone mockup). Usuários ganham Viewcoins assistindo às lives da grade de horários — a cada 5 minutos, 1 Viewcoin é creditado. Inclui login/cadastro, grade 24h×7dias, ranking, perfil e painel admin."
+version = "1.0.0"
+id = "artifacts/viewcoin-app"
+router = "path"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 18642
+
+[services.development]
+run = "pnpm --filter @workspace/viewcoin-app run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/viewcoin-app", "run", "build" ]
+serve = "static"
+publicDir = "artifacts/viewcoin-app/dist/public"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "18642"
+BASE_PATH = "/"

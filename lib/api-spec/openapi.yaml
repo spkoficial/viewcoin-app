@@ -3,13 +3,21 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: ViewCoin App API - Grade de Lives com sistema de Viewcoins
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Autenticação e cadastro
+  - name: users
+    description: Usuários e perfis
+  - name: schedule
+    description: Grade de horários
+  - name: viewcoins
+    description: Sistema de Viewcoins
 paths:
   /healthz:
     get:
@@ -24,6 +32,314 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/register:
+    post:
+      operationId: register
+      tags: [auth]
+      summary: Cadastrar novo usuário
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RegisterInput"
+      responses:
+        "201":
+          description: Usuário criado com sucesso
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
+          description: Dados inválidos ou e-mail já cadastrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/login:
+    post:
+      operationId: login
+      tags: [auth]
+      summary: Fazer login
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/LoginInput"
+      responses:
+        "200":
+          description: Login bem-sucedido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthResponse"
+        "401":
+          description: Credenciais inválidas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /auth/logout:
+    post:
+      operationId: logout
+      tags: [auth]
+      summary: Fazer logout
+      responses:
+        "200":
+          description: Logout realizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Obter usuário atual
+      responses:
+        "200":
+          description: Dados do usuário logado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Não autenticado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /users:
+    get:
+      operationId: listUsers
+      tags: [users]
+      summary: Listar usuários para ranking
+      responses:
+        "200":
+          description: Lista de usuários ordenada por Viewcoins
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/UserPublic"
+
+  /users/{id}:
+    get:
+      operationId: getUser
+      tags: [users]
+      summary: Obter perfil de um usuário
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Perfil do usuário
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/UserProfile"
+        "404":
+          description: Usuário não encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    patch:
+      operationId: updateUser
+      tags: [users]
+      summary: Atualizar perfil do usuário
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/UserUpdate"
+      responses:
+        "200":
+          description: Perfil atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+
+  /schedule:
+    get:
+      operationId: listSchedule
+      tags: [schedule]
+      summary: Listar toda a grade de horários (24h × 7 dias)
+      responses:
+        "200":
+          description: Todos os slots da grade
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ScheduleSlot"
+
+  /schedule/current:
+    get:
+      operationId: getCurrentSlot
+      tags: [schedule]
+      summary: Obter o slot ativo no horário atual
+      responses:
+        "200":
+          description: Slot ativo agora (ou vazio se não houver)
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CurrentSlotResponse"
+
+  /schedule/{id}:
+    put:
+      operationId: upsertSlot
+      tags: [schedule]
+      summary: Criar ou atualizar um slot (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SlotInput"
+      responses:
+        "200":
+          description: Slot salvo
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleSlot"
+        "403":
+          description: Sem permissão de admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+    delete:
+      operationId: deleteSlot
+      tags: [schedule]
+      summary: Remover um slot (admin)
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Slot removido
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SuccessResponse"
+        "403":
+          description: Sem permissão de admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /schedule/slot:
+    post:
+      operationId: createSlot
+      tags: [schedule]
+      summary: Criar um novo slot na grade (admin)
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/SlotInput"
+      responses:
+        "201":
+          description: Slot criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScheduleSlot"
+        "403":
+          description: Sem permissão de admin
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ErrorResponse"
+
+  /viewcoins/earn:
+    post:
+      operationId: earnViewcoins
+      tags: [viewcoins]
+      summary: Creditar Viewcoins após sessão de 5 minutos
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/EarnInput"
+      responses:
+        "200":
+          description: Viewcoins creditados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EarnResponse"
+
+  /viewcoins/history/{userId}:
+    get:
+      operationId: getViewcoinHistory
+      tags: [viewcoins]
+      summary: Histórico de Viewcoins de um usuário
+      parameters:
+        - name: userId
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        "200":
+          description: Histórico de transações
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ViewcoinTransaction"
+
+  /ranking:
+    get:
+      operationId: getRanking
+      tags: [viewcoins]
+      summary: Ranking completo de usuários por Viewcoins
+      responses:
+        "200":
+          description: Ranking de usuários
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/RankingEntry"
+
 components:
   schemas:
     HealthStatus:
@@ -34,3 +350,264 @@ components:
       required:
         - status
 
+    ErrorResponse:
+      type: object
+      properties:
+        error:
+          type: string
+      required:
+        - error
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        message:
+          type: string
+      required:
+        - success
+
+    RegisterInput:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 6
+        confirmPassword:
+          type: string
+      required:
+        - username
+        - email
+        - password
+        - confirmPassword
+
+    LoginInput:
+      type: object
+      properties:
+        email:
+          type: string
+        password:
+          type: string
+      required:
+        - email
+        - password
+
+    User:
+      type: object
+      properties:
+        id:
+          type: number
+        username:
+          type: string
+        email:
+          type: string
+        isAdmin:
+          type: boolean
+        viewcoins:
+          type: number
+        createdAt:
+          type: string
+      required:
+        - id
+        - username
+        - email
+        - isAdmin
+        - viewcoins
+        - createdAt
+
+    UserPublic:
+      type: object
+      properties:
+        id:
+          type: number
+        username:
+          type: string
+        viewcoins:
+          type: number
+      required:
+        - id
+        - username
+        - viewcoins
+
+    UserProfile:
+      type: object
+      properties:
+        id:
+          type: number
+        username:
+          type: string
+        viewcoins:
+          type: number
+        totalMinutesWatched:
+          type: number
+        createdAt:
+          type: string
+        recentTransactions:
+          type: array
+          items:
+            $ref: "#/components/schemas/ViewcoinTransaction"
+      required:
+        - id
+        - username
+        - viewcoins
+        - totalMinutesWatched
+        - createdAt
+        - recentTransactions
+
+    UserUpdate:
+      type: object
+      properties:
+        username:
+          type: string
+          minLength: 3
+        email:
+          type: string
+        password:
+          type: string
+          minLength: 6
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: "#/components/schemas/User"
+        token:
+          type: string
+      required:
+        - user
+        - token
+
+    ScheduleSlot:
+      type: object
+      properties:
+        id:
+          type: number
+        dayOfWeek:
+          type: number
+          description: 0=Domingo, 1=Segunda, ..., 6=Sábado
+        hourStart:
+          type: number
+          description: Hora de início (0-23)
+        hourEnd:
+          type: number
+          description: Hora de fim (1-24)
+        memberName:
+          type: string
+        channelLink:
+          type: string
+        createdAt:
+          type: string
+      required:
+        - id
+        - dayOfWeek
+        - hourStart
+        - hourEnd
+        - memberName
+        - channelLink
+        - createdAt
+
+    CurrentSlotResponse:
+      type: object
+      properties:
+        slot:
+          $ref: "#/components/schemas/ScheduleSlot"
+        hasSlot:
+          type: boolean
+      required:
+        - hasSlot
+
+    SlotInput:
+      type: object
+      properties:
+        dayOfWeek:
+          type: number
+        hourStart:
+          type: number
+        hourEnd:
+          type: number
+        memberName:
+          type: string
+        channelLink:
+          type: string
+      required:
+        - dayOfWeek
+        - hourStart
+        - hourEnd
+        - memberName
+        - channelLink
+
+    ViewcoinTransaction:
+      type: object
+      properties:
+        id:
+          type: number
+        userId:
+          type: number
+        amount:
+          type: number
+        minutesWatched:
+          type: number
+        channelName:
+          type: string
+        earnedAt:
+          type: string
+      required:
+        - id
+        - userId
+        - amount
+        - minutesWatched
+        - channelName
+        - earnedAt
+
+    EarnInput:
+      type: object
+      properties:
+        minutesWatched:
+          type: number
+        channelName:
+          type: string
+        slotId:
+          type: ["number", "null"]
+      required:
+        - minutesWatched
+        - channelName
+
+    EarnResponse:
+      type: object
+      properties:
+        viewcoinsEarned:
+          type: number
+        newBalance:
+          type: number
+        transaction:
+          $ref: "#/components/schemas/ViewcoinTransaction"
+      required:
+        - viewcoinsEarned
+        - newBalance
+        - transaction
+
+    RankingEntry:
+      type: object
+      properties:
+        position:
+          type: number
+        userId:
+          type: number
+        username:
+          type: string
+        viewcoins:
+          type: number
+        totalMinutesWatched:
+          type: number
+      required:
+        - position
+        - userId
+        - username
+        - viewcoins
+        - totalMinutesWatched

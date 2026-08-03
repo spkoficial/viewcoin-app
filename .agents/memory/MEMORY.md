@@ -1,0 +1,1 @@
+- [ViewCoin App project](viewcoin-app.md) — setup quirks and file locations for this project
