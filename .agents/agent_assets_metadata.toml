@@ -5,5 +5,5 @@ generated = []
 id = "IJTdKqDhGJdMg8i-0u-HF"
 uri = "file://viewcoin-local.zip"
 type = "unspecified"
-title = "ViewCoin App — Versão Local"
-description = "Pacote para rodar no seu computador. Requer Node.js 18+. Leia o LEIA-ME.txt incluído."
+title = "ViewCoin App — Versão Local (com dependências)"
+description = "1.7 MB · Inclui node_modules. Só precisar ter Node.js instalado e dar duplo-clique em start.bat."
