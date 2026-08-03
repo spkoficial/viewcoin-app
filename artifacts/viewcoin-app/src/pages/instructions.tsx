@@ -1,10 +1,9 @@
-import { Info, Play, Coins, ShieldAlert, MonitorPlay } from 'lucide-react';
-import { BottomNav } from '@/components/bottom-nav';
+import { Info, Coins, ShieldAlert } from 'lucide-react';
 
 export default function InstructionsScreen() {
   return (
     <>
-      <div className="flex-1 w-full h-full flex flex-col pt-6 pb-20 overflow-y-auto no-scrollbar">
+      <div className="flex-1 w-full h-full flex flex-col pt-6 overflow-y-auto no-scrollbar">
         <div className="px-5 mb-6 text-center">
           <div className="w-12 h-12 rounded-full bg-primary/20 mx-auto flex items-center justify-center mb-3">
             <Info className="w-6 h-6 text-primary" />
@@ -67,8 +66,6 @@ export default function InstructionsScreen() {
 
         </div>
       </div>
-
-      <BottomNav />
     </>
   );
 }

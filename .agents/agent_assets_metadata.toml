@@ -1,0 +1,9 @@
+uploads = []
+generated = []
+
+[[outputs]]
+id = "IJTdKqDhGJdMg8i-0u-HF"
+uri = "file://viewcoin-local.zip"
+type = "unspecified"
+title = "ViewCoin App — Versão Local"
+description = "Pacote para rodar no seu computador. Requer Node.js 18+. Leia o LEIA-ME.txt incluído."

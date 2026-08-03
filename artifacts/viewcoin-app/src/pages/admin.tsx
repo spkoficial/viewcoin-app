@@ -3,7 +3,6 @@ import { Shield, Clock, Plus, Loader2, X, Trash2, Save } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useLocation } from 'wouter';
 import { useListSchedule, useCreateSlot, useUpsertSlot, useDeleteSlot } from '@workspace/api-client-react';
-import { BottomNav } from '@/components/bottom-nav';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -170,8 +169,6 @@ export default function AdminScreen() {
           </div>
         )}
       </div>
-
-      <BottomNav />
 
       {/* Edit Modal */}
       <AnimatePresence>

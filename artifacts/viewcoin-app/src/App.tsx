@@ -18,6 +18,7 @@ import ProfileScreen from '@/pages/profile';
 import InstructionsScreen from '@/pages/instructions';
 import AdminScreen from '@/pages/admin';
 
+
 import { setAuthTokenGetter } from '@workspace/api-client-react';
 
 // Configure api client auth token
@@ -64,6 +65,9 @@ function Router() {
       </Route>
       <Route path="/instrucoes">
         {() => <ProtectedRoute component={InstructionsScreen} />}
+      </Route>
+      <Route path="/admin">
+        {() => <ProtectedRoute component={AdminScreen} />}
       </Route>
       <Route component={NotFound} />
     </Switch>

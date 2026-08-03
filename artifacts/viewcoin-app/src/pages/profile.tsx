@@ -3,7 +3,6 @@ import { useLocation } from 'wouter';
 import { User as UserIcon, Coins, Clock, LogOut, Calendar, Loader2, History } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useGetUser, useLogout } from '@workspace/api-client-react';
-import { BottomNav } from '@/components/bottom-nav';
 
 export default function ProfileScreen() {
   const [, setLocation] = useLocation();
@@ -31,7 +30,7 @@ export default function ProfileScreen() {
 
   return (
     <>
-      <div className="flex-1 w-full h-full flex flex-col pt-8 pb-20">
+      <div className="flex-1 w-full h-full flex flex-col pt-8">
         {isLoading ? (
           <div className="flex-1 flex items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -131,8 +130,6 @@ export default function ProfileScreen() {
           </div>
         )}
       </div>
-
-      <BottomNav />
     </>
   );
 }

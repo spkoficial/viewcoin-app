@@ -16,7 +16,8 @@ export function BottomNav() {
   ];
 
   return (
-    <div className="absolute bottom-0 left-0 w-full bg-zinc-900/90 backdrop-blur-xl border-t border-white/10 pb-5 pt-2 px-2 flex items-center justify-around z-40 rounded-b-[2.5rem]">
+    /* shrink-0 so it never gets squeezed; rounded-b matches the phone frame */
+    <div className="shrink-0 w-full bg-zinc-900/95 backdrop-blur-xl border-t border-white/10 pb-4 pt-1.5 px-2 flex items-center justify-around rounded-b-[2.5rem]">
       {navItems.map((item) => {
         const isActive = location === item.href;
         const Icon = item.icon;
@@ -24,7 +25,7 @@ export function BottomNav() {
         return (
           <Link key={item.href} href={item.href}>
             <div className={cn(
-              "flex flex-col items-center gap-0.5 px-3 py-1.5 rounded-xl transition-all duration-200",
+              "flex flex-col items-center gap-0.5 px-3 py-1 rounded-xl transition-all duration-200",
               isActive
                 ? "text-fuchsia-400"
                 : "text-white/40 hover:text-white/70"

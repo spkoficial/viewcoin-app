@@ -1,0 +1,42 @@
+╔══════════════════════════════════════════════════════╗
+║              ViewCoin App — Versão Local             ║
+╚══════════════════════════════════════════════════════╝
+
+REQUISITO: Node.js 18 ou superior
+  Baixe em: https://nodejs.org  (escolha a versão LTS)
+
+──────────────────────────────────────────────────────
+ COMO INICIAR
+──────────────────────────────────────────────────────
+
+  Windows:
+    Duplo-clique em: start.bat
+
+  Mac / Linux:
+    Terminal → cd até esta pasta → bash start.sh
+    (na primeira vez: chmod +x start.sh)
+
+  Qualquer sistema (via terminal):
+    npm install   (só na primeira vez)
+    node server.js
+
+  O app abrirá em: http://localhost:3000
+
+──────────────────────────────────────────────────────
+ ACESSO INICIAL
+──────────────────────────────────────────────────────
+
+  Admin padrão:
+    E-mail: admin@viewcoin.tv
+    Senha:  admin123
+
+  Os dados ficam salvos em: data/viewcoin.db
+  (banco SQLite, sem precisar instalar PostgreSQL)
+
+──────────────────────────────────────────────────────
+ PARA PARAR O SERVIDOR
+──────────────────────────────────────────────────────
+
+  Pressione Ctrl+C no terminal (ou feche a janela).
+
+──────────────────────────────────────────────────────

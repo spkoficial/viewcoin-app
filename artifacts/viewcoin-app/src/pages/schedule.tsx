@@ -2,7 +2,6 @@ import { useState, useMemo } from 'react';
 import { Calendar as CalendarIcon, Clock, Plus, Loader2, X } from 'lucide-react';
 import { useAuth } from '@/hooks/use-auth';
 import { useListSchedule, useCreateSlot, useUpsertSlot, useDeleteSlot } from '@workspace/api-client-react';
-import { BottomNav } from '@/components/bottom-nav';
 import { cn } from '@/lib/utils';
 import { useToast } from '@/hooks/use-toast';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -104,7 +103,7 @@ export default function ScheduleScreen() {
 
   return (
     <>
-      <div className="flex-1 w-full h-full flex flex-col pt-6 pb-20">
+      <div className="flex-1 w-full h-full flex flex-col pt-6">
         <div className="px-5 mb-4">
           <h1 className="text-xl font-bold flex items-center gap-2">
             <CalendarIcon className="w-5 h-5 text-primary" /> Grade de Lives
@@ -172,8 +171,6 @@ export default function ScheduleScreen() {
           </div>
         )}
       </div>
-
-      <BottomNav />
 
       <AnimatePresence>
         {modalOpen && (

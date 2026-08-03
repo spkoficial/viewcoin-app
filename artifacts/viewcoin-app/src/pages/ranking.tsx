@@ -1,7 +1,6 @@
 import { Trophy, Medal, Coins, Loader2 } from 'lucide-react';
 import { useGetRanking } from '@workspace/api-client-react';
 import { useAuth } from '@/hooks/use-auth';
-import { BottomNav } from '@/components/bottom-nav';
 import { cn } from '@/lib/utils';
 import { motion } from 'framer-motion';
 
@@ -11,7 +10,7 @@ export default function RankingScreen() {
 
   return (
     <>
-      <div className="flex-1 w-full h-full flex flex-col pt-6 pb-20">
+      <div className="flex-1 w-full h-full flex flex-col pt-6">
         <div className="px-5 mb-6 text-center">
           <div className="w-12 h-12 rounded-full bg-secondary/20 mx-auto flex items-center justify-center mb-3 shadow-[0_0_20px_rgba(245,158,11,0.2)]">
             <Trophy className="w-6 h-6 text-secondary" />
@@ -87,8 +86,6 @@ export default function RankingScreen() {
           </div>
         )}
       </div>
-
-      <BottomNav />
     </>
   );
 }
