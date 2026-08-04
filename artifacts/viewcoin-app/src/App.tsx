@@ -6,7 +6,7 @@ import { Route, Switch, Router as WouterRouter, Redirect } from 'wouter';
 
 // Layout & Hooks
 import { PhoneLayout } from '@/components/phone-layout';
-import { useAuth } from '@/hooks/use-auth';
+import { useAuth, AuthProvider } from '@/hooks/use-auth';
 
 // Pages
 import BootScreen from '@/pages/boot';
@@ -17,7 +17,6 @@ import RankingScreen from '@/pages/ranking';
 import ProfileScreen from '@/pages/profile';
 import InstructionsScreen from '@/pages/instructions';
 import AdminScreen from '@/pages/admin';
-
 
 import { setAuthTokenGetter } from '@workspace/api-client-react';
 
@@ -46,6 +45,21 @@ function ProtectedRoute({ component: Component, ...rest }: any) {
   return <Component {...rest} />;
 }
 
+// Protected + Admin-only Route Wrapper
+function AdminRoute({ component: Component, ...rest }: any) {
+  const { isLoggedIn, user } = useAuth();
+
+  if (!isLoggedIn) {
+    return <Redirect to="/login" />;
+  }
+
+  if (!user?.isAdmin) {
+    return <Redirect to="/home" />;
+  }
+
+  return <Component {...rest} />;
+}
+
 function Router() {
   return (
     <Switch>
@@ -67,7 +81,7 @@ function Router() {
         {() => <ProtectedRoute component={InstructionsScreen} />}
       </Route>
       <Route path="/admin">
-        {() => <ProtectedRoute component={AdminScreen} />}
+        {() => <AdminRoute component={AdminScreen} />}
       </Route>
       <Route component={NotFound} />
     </Switch>
@@ -77,14 +91,16 @@ function Router() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <TooltipProvider>
-        <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
-          <PhoneLayout>
-            <Router />
-          </PhoneLayout>
-        </WouterRouter>
-        <Toaster />
-      </TooltipProvider>
+      <AuthProvider>
+        <TooltipProvider>
+          <WouterRouter base={import.meta.env.BASE_URL.replace(/\/$/, '')}>
+            <PhoneLayout>
+              <Router />
+            </PhoneLayout>
+          </WouterRouter>
+          <Toaster />
+        </TooltipProvider>
+      </AuthProvider>
     </QueryClientProvider>
   );
 }

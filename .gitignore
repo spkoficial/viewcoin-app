@@ -47,3 +47,10 @@ Thumbs.db
 # Replit
 .cache/
 .local/
+
+# Environment variables locais (use os .env.example como referência)
+.env
+.env.local
+artifacts/*/.env
+lib/*/.env
+attached_assets/*.zip

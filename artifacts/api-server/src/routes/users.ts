@@ -26,12 +26,30 @@ router.get("/users", async (_req, res): Promise<void> => {
 });
 
 router.get("/users/:id", async (req, res): Promise<void> => {
+  const authUserId = getAuthUserId(req);
+  if (!authUserId) {
+    res.status(401).json({ error: "Não autenticado" });
+    return;
+  }
+
   const raw = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;
   const id = parseInt(raw, 10);
 
   if (isNaN(id)) {
     res.status(400).json({ error: "ID inválido" });
     return;
+  }
+
+  if (authUserId !== id) {
+    const [requester] = await db
+      .select({ isAdmin: usersTable.isAdmin })
+      .from(usersTable)
+      .where(eq(usersTable.id, authUserId));
+
+    if (!requester?.isAdmin) {
+      res.status(403).json({ error: "Sem permissão" });
+      return;
+    }
   }
 
   const [user] = await db
