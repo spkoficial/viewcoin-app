@@ -1,6 +1,6 @@
 /**
- * ViewCoin App — Servidor Local para Testes
- * Usa SQLite via WebAssembly (sem compilação nativa).
+ * ViewCoin App — Servidor Local Multi-Usuário
+ * Um computador roda este servidor; todos os outros acessam via navegador.
  * Requer Node.js 18+ instalado.
  */
 
@@ -9,10 +9,25 @@ import { createHash, randomBytes } from 'crypto';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
 import { existsSync, mkdirSync } from 'fs';
+import { networkInterfaces } from 'os';
 import DatabaseConstructor from 'node-sqlite3-wasm';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+// ─── Local network IP ─────────────────────────────────────────────────────────
+function getLocalIPs() {
+  const nets = networkInterfaces();
+  const results = [];
+  for (const iface of Object.values(nets)) {
+    for (const net of iface) {
+      if (net.family === 'IPv4' && !net.internal) {
+        results.push(net.address);
+      }
+    }
+  }
+  return results;
+}
 
 // ─── Database setup ───────────────────────────────────────────────────────────
 const dataDir = join(__dirname, 'data');
@@ -296,8 +311,29 @@ app.get('*', (_req, res) => {
 
 // ─── Start ────────────────────────────────────────────────────────────────────
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-  console.log(`\n🪙  ViewCoin App rodando em: http://localhost:${PORT}`);
-  console.log(`   Admin: admin@viewcoin.tv / admin123\n`);
-  console.log('   Pressione Ctrl+C para parar.\n');
+app.listen(PORT, '0.0.0.0', () => {
+  const ips = getLocalIPs();
+
+  console.log('\n╔══════════════════════════════════════════════════════╗');
+  console.log('║           🪙  ViewCoin App — Servidor Ativo          ║');
+  console.log('╚══════════════════════════════════════════════════════╝\n');
+
+  console.log('  ✅ Neste computador (host):');
+  console.log(`     http://localhost:${PORT}\n`);
+
+  if (ips.length > 0) {
+    console.log('  🌐 Endereços para compartilhar com os outros:');
+    for (const ip of ips) {
+      console.log(`     http://${ip}:${PORT}`);
+    }
+    console.log('');
+    console.log('  📋 Copie um desses endereços e envie para os participantes.');
+    console.log('     Eles abrem no navegador (Chrome, Edge, Firefox).');
+  } else {
+    console.log('  ⚠️  Não foi possível detectar o IP da rede local.');
+    console.log('     Verifique manualmente em: Configurações > Rede > Detalhes');
+  }
+
+  console.log('\n  👤 Admin: admin@viewcoin.tv  /  Senha: admin123');
+  console.log('\n  ⛔ Para parar: feche esta janela ou pressione Ctrl+C\n');
 });

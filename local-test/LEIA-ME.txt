@@ -1,42 +1,88 @@
 ╔══════════════════════════════════════════════════════╗
-║              ViewCoin App — Versão Local             ║
+║         ViewCoin App — Versão Local Multi-Usuário    ║
 ╚══════════════════════════════════════════════════════╝
 
-REQUISITO: Node.js 18 ou superior
+REQUISITO: Node.js 18 ou superior (apenas na máquina servidora)
   Baixe em: https://nodejs.org  (escolha a versão LTS)
 
-──────────────────────────────────────────────────────
- COMO INICIAR
-──────────────────────────────────────────────────────
+══════════════════════════════════════════════════════
+ COMO FUNCIONA — LEIA ANTES DE COMEÇAR
+══════════════════════════════════════════════════════
 
-  Windows:
-    Duplo-clique em: start.bat
+  ┌─────────────────────────────────────────────────┐
+  │  UM computador roda o SERVIDOR.                 │
+  │  Os outros acessam pelo NAVEGADOR.              │
+  └─────────────────────────────────────────────────┘
 
-  Mac / Linux:
-    Terminal → cd até esta pasta → bash start.sh
-    (na primeira vez: chmod +x start.sh)
+  Todos os dados (usuários, rankings, viewcoins) ficam
+  salvos nessa única máquina. Todos veem a mesma coisa
+  em tempo real.
 
-  Qualquer sistema (via terminal):
-    npm install   (só na primeira vez)
-    node server.js
+══════════════════════════════════════════════════════
+ PASSO A PASSO
+══════════════════════════════════════════════════════
 
-  O app abrirá em: http://localhost:3000
+  ── MÁQUINA SERVIDORA (quem vai hospedar) ──────────
 
-──────────────────────────────────────────────────────
- ACESSO INICIAL
-──────────────────────────────────────────────────────
+  1. Instale o Node.js (se ainda não tiver):
+     https://nodejs.org → versão LTS → reinicie o PC
 
-  Admin padrão:
-    E-mail: admin@viewcoin.tv
-    Senha:  admin123
+  2. Extraia este ZIP em qualquer pasta.
 
-  Os dados ficam salvos em: data/viewcoin.db
-  (banco SQLite, sem precisar instalar PostgreSQL)
+  3. Duplo-clique em: start.bat  (Windows)
+               ou:  bash start.sh  (Mac/Linux)
 
-──────────────────────────────────────────────────────
- PARA PARAR O SERVIDOR
-──────────────────────────────────────────────────────
+  4. O servidor vai mostrar os endereços no terminal.
+     Exemplo:
+       http://192.168.1.10:3000
+       http://10.0.0.5:3000
 
-  Pressione Ctrl+C no terminal (ou feche a janela).
+  5. Copie o endereço e envie para os participantes
+     (WhatsApp, Discord, e-mail, etc.)
 
-──────────────────────────────────────────────────────
+  6. MANTENHA o terminal/janela aberto enquanto
+     os outros estiverem usando o app.
+
+  ── OUTROS PARTICIPANTES ───────────────────────────
+
+  Opção A — Usando entrar.bat:
+    1. Duplo-clique em entrar.bat
+    2. Digite o endereço que o host te enviou
+       (exemplo: 192.168.1.10:3000)
+    3. O navegador abre automaticamente
+
+  Opção B — Direto no navegador:
+    1. Abra Chrome, Edge ou Firefox
+    2. Na barra de endereços, cole o link que o host enviou
+       (exemplo: http://192.168.1.10:3000)
+
+══════════════════════════════════════════════════════
+ CREDENCIAIS PADRÃO (ADMIN)
+══════════════════════════════════════════════════════
+
+  E-mail: admin@viewcoin.tv
+  Senha:  admin123
+
+  Qualquer participante pode criar sua própria conta
+  na tela de cadastro.
+
+══════════════════════════════════════════════════════
+ DADOS SALVOS
+══════════════════════════════════════════════════════
+
+  Tudo fica em: data/viewcoin.db (banco SQLite)
+  Não apague essa pasta se quiser manter os dados.
+
+══════════════════════════════════════════════════════
+ PROBLEMAS COMUNS
+══════════════════════════════════════════════════════
+
+  "Não conecta" → Verifique se o firewall do Windows
+    bloqueou a porta 3000. Vá em:
+    Painel de Controle → Firewall do Windows →
+    Permitir um aplicativo → Node.js → Marcar "Particular"
+
+  "Janela fecha na hora" → Node.js não está instalado
+    ou não está no PATH. Reinstale e reinicie o PC.
+
+══════════════════════════════════════════════════════
